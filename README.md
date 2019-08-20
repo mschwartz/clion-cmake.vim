@@ -6,9 +6,9 @@ Implements CLion friendly/compatible vim commands for working with CMake project
 
 This plugin implements 4 comamnds:
 * CMakeClean - clean project
-* CMakeBuild - build (debug) version of project
-* CMakeDebug - build and run debug version under debugger
-* CMakeRun - build and run release version
+* CMakeRelease - build (release) version of project
+* CMakeDebug - build (debug) version of project
+* CMakeRun - build and run debug version
 
 Bind your favorite keys to those commands.
 
