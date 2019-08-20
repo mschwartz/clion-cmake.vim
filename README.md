@@ -19,5 +19,3 @@ The project name is found in the CMakeLists.txt PROJECT() line.  This becomes th
 Like CLion, builds are done in cmake-build-debug/ and cmake-build-release/.
 
 
-
-
