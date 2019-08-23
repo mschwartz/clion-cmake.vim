@@ -43,64 +43,75 @@ function! s:CMAKE_build(configuration)
 endfunction
 
 function! s:CMAKE_debug()
-  let l:name = s:CMAKE_projectname() 
-  let l:cur_dir = getcwd()
+  let git_dir = substitute(system("git rev-parse --show-toplevel"), '\n\+$', '', 'g')
+  let project = substitute(s:CMAKE_projectname() , '\n\+$', '', 'g')
+  let name = project
+"  echom "project " . project
+"  echom "git_dir " . git_dir
+"  echom "name " . name"
+  let cur_dir = getcwd()
   call s:CMAKE_build("debug")
-  let l:path = name
-  let l:mac = name . '.app'
-  let l:git_dir = system("git rev-parse --show-toplevel")
-  lcd `=l:git_dir`
-  cd cmake-build-release
+  let path = './cmake-build-debug/' . name
+  let mac = './cmake-build-debug/' . project . '.app'
+
+  lcd `=git_dir`
+  cd cmake-build-debug
+  lcd `=git_dir`
+
+  echom "mac " . mac 
   if isdirectory(mac) != 0
-"    let l:path = l:name . ".app/Contents/MacOS/" . l:name
-    let l:path = l:name . ".app/Contents/MacOS/"
+    let path = name . ".app/Contents/MacOS/" . name
     echom mac . " IS DIRECTORY " . path
   else
-    let l:cur_dir = getcwd()
+    let cur_dir = getcwd()
     echom cur_dir . ' ' . mac . " IS NOT DIRECTORY"
   endif
-"  echom l:path
-"  if has('macunix')
-"  lcd `./=path`
-"  execute !ls
-"  let l:command = '!tmux run-shell -t 1 "lldb ' .  l:name . '"'
-"  let l:command = '!iterm2 -e "lldb ' .  l:name . '"'
-"  echom l:command
-"  execute l:command
-"  vim.eval(l:command)
-"  else
-"    packadd termdebug
-"    Termdebug
-"  endif
-"  Run `=path`
-"  call system(path)
-  lcd `=l:cur_dir`
+"  echom path
+  call VimuxRunCommand("ls -l")
+  call VimuxRunCommand("/usr/bin/lldb ./cmake-build-debug/" .path)
+  lcd `=cur_dir`
+  
+  
 endfunction
 
 function! s:CMAKE_run()
-  let name = s:CMAKE_projectname() 
+  let git_dir = substitute(system("git rev-parse --show-toplevel"), '\n\+$', '', 'g')
+" let git_dir = substitute(git_dir, '\n$', '', '')
+  call VimuxRunCommand("echo git_dir " . git_dir)
+  let project = substitute(s:CMAKE_projectname() , '\n\+$', '', 'g')
+  let name = project
+  call VimuxRunCommand("echo name " . name)
   let cur_dir = getcwd()
   call s:CMAKE_build("debug")
-  let path = name
-  let mac = name . '.app'
-  let git_dir = system("git rev-parse --show-toplevel")
+  let path = './cmake-build-debug/' . name
+  let mac = './cmake-build-debug/' . project . '.app'
+
   lcd `=git_dir`
   cd cmake-build-debug
+  lcd `=git_dir`
+
+  echom "mac " . mac 
   if isdirectory(mac) != 0
     let path = name . ".app/Contents/MacOS/" . name
-"    echom mac . " IS DIRECTORY " . path
+    echom mac . " IS DIRECTORY " . path
   else
     let cur_dir = getcwd()
-"    echom cur_dir . ' ' . mac . " IS NOT DIRECTORY"
+    echom cur_dir . ' ' . mac . " IS NOT DIRECTORY"
   endif
-  execute "!" . path . "&"
+"  echom path
+  call VimuxRunCommand("ls -l")
+  let command = "./cmake-build-debug/" .path
+  echom command
+  call VimuxRunCommand(command)
+"  execute "!" . path . "&"
 "  call system(path)
   lcd `=cur_dir`
 endfunction
 
 command! CMakeClean call s:CMAKE_clean()
 command! CMakeRelease call s:CMAKE_build("release")
-command! CMakeDebug call s:CMAKE_build("debug")
+"command! CMakeDebug call s:CMAKE_build("debug")
+command! CMakeDebug call s:CMAKE_debug()
 command! CMakeRun call s:CMAKE_run()
 
 " My bindings:
