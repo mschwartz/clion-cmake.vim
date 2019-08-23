@@ -7,8 +7,10 @@ function! s:CMAKE_clean()
   let cur_dir = getcwd()
   let git_dir = system("git rev-parse --show-toplevel")
   lcd `=git_dir`
+  !rm -rf cmake-build-debug
   !mkdir -p cmake-build-debug cmake-build-release
   cd cmake-build-debug
+  !rm Resources.bin
   !cmake -DCMAKE_BUILD_TYPE=Debug ..
   lcd `=git_dir`
   cd cmake-build-release
@@ -21,19 +23,23 @@ function! s:CMAKE_build(configuration)
   let git_dir = system("git rev-parse --show-toplevel")
   lcd `=git_dir`
   if a:configuration == "debug"
-    cd cmake-build-debug
+    !cmake --build cmake-build-debug  --target Modite -- -j 20
+"    cd cmake-build-debug
 "    if filereadable("CmakeCache.txt")
 "      !rm -rf Resources.h Resources.bin CMakeCache.txt CMakeFiles Makefile cmake_install.cmake
 "    endif
 "    !cmake -DCMAKE_BUILD_TYPE=Debug ..
   else
-    cd cmake-build-release
+    !cmake --build cmake-build-debug  --target Modite -- -j 20
+"    cd cmake-build-release
 "    if filereadable("CmakeCache.txt")
 "      !rm -rf Resources.h Resources.bin CMakeCache.txt CMakeFiles Makefile cmake_install.cmake
 "    endif
 "    !cmake -DCMAKE_BUILD_TYPE=Release ..
   endif
-  make -j 20
+  "/Users/mschwartz/Library/Application Support/JetBrains/Toolbox/apps/CLion/ch-0/192.5728.100/CLion.app/Contents/bin/cmake/mac/bin/cmake" --build 
+"  /Users/mschwartz/github/ModusCreateOrg/modite-adventure/cmake-build-debug --target Modite -- -j 10
+"  make -j 20
 endfunction
 
 function! s:CMAKE_debug()
@@ -79,7 +85,7 @@ function! s:CMAKE_run()
   let mac = name . '.app'
   let git_dir = system("git rev-parse --show-toplevel")
   lcd `=git_dir`
-  cd cmake-build-release
+  cd cmake-build-debug
   if isdirectory(mac) != 0
     let path = name . ".app/Contents/MacOS/" . name
 "    echom mac . " IS DIRECTORY " . path
