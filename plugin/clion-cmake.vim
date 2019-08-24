@@ -7,14 +7,17 @@ function! s:CMAKE_clean()
   let cur_dir = getcwd()
   let git_dir = system("git rev-parse --show-toplevel")
   lcd `=git_dir`
-  !rm -rf cmake-build-debug
-  !mkdir -p cmake-build-debug cmake-build-release
-  cd cmake-build-debug
-  !rm Resources.bin
-  !cmake -DCMAKE_BUILD_TYPE=Debug ..
-  lcd `=git_dir`
-  cd cmake-build-release
-  !cmake -DCMAKE_BUILD_TYPE=Release ..
+  call VimuxRunCommand("rm -rf cmake-build-debug cmake-build-release && mkdir -p cmake-build-debug cmake-build-release")
+  call VimuxRunCommand("cd cmake-build-debug && cmake -DCMAKE_BUILD_TYPE=Debug ..")
+  call VimuxRunCommand("cd cmake-build-release && cmake -DCMAKE_BUILD_TYPE=Release ..")
+"  !rm -rf cmake-build-debug
+"  !mkdir -p cmake-build-debug cmake-build-release
+"  cd cmake-build-debug
+"  !rm Resources.bin
+"  !cmake -DCMAKE_BUILD_TYPE=Debug ..
+"  lcd `=git_dir`
+"  cd cmake-build-release
+"  !cmake -DCMAKE_BUILD_TYPE=Release ..
   lcd `=cur_dir`
 endfunction
 
@@ -22,21 +25,21 @@ function! s:CMAKE_build(configuration)
   let cur_dir = getcwd()
   let git_dir = system("git rev-parse --show-toplevel")
   lcd `=git_dir`
-  if a:configuration == "debug"
-    !cmake --build cmake-build-debug  --target Modite -- -j 20
+"  if a:configuration == "debug"
+    call VimuxRunCommand("cmake --build cmake-build-debug  --target Modite -- -j 20")
 "    cd cmake-build-debug
 "    if filereadable("CmakeCache.txt")
 "      !rm -rf Resources.h Resources.bin CMakeCache.txt CMakeFiles Makefile cmake_install.cmake
 "    endif
 "    !cmake -DCMAKE_BUILD_TYPE=Debug ..
-  else
-    !cmake --build cmake-build-debug  --target Modite -- -j 20
+"  else
+"    !cmake --build cmake-build-debug  --target Modite -- -j 20
 "    cd cmake-build-release
 "    if filereadable("CmakeCache.txt")
 "      !rm -rf Resources.h Resources.bin CMakeCache.txt CMakeFiles Makefile cmake_install.cmake
 "    endif
 "    !cmake -DCMAKE_BUILD_TYPE=Release ..
-  endif
+"  endif
   "/Users/mschwartz/Library/Application Support/JetBrains/Toolbox/apps/CLion/ch-0/192.5728.100/CLion.app/Contents/bin/cmake/mac/bin/cmake" --build 
 "  /Users/mschwartz/github/ModusCreateOrg/modite-adventure/cmake-build-debug --target Modite -- -j 10
 "  make -j 20
@@ -46,9 +49,6 @@ function! s:CMAKE_debug()
   let git_dir = substitute(system("git rev-parse --show-toplevel"), '\n\+$', '', 'g')
   let project = substitute(s:CMAKE_projectname() , '\n\+$', '', 'g')
   let name = project
-"  echom "project " . project
-"  echom "git_dir " . git_dir
-"  echom "name " . name"
   let cur_dir = getcwd()
   call s:CMAKE_build("debug")
   let path = './cmake-build-debug/' . name
@@ -58,16 +58,15 @@ function! s:CMAKE_debug()
   cd cmake-build-debug
   lcd `=git_dir`
 
-  echom "mac " . mac 
   if isdirectory(mac) != 0
     let path = name . ".app/Contents/MacOS/" . name
-    echom mac . " IS DIRECTORY " . path
+"    echom mac . " IS DIRECTORY " . path
   else
     let cur_dir = getcwd()
-    echom cur_dir . ' ' . mac . " IS NOT DIRECTORY"
+"    echom cur_dir . ' ' . mac . " IS NOT DIRECTORY"
   endif
 "  echom path
-  call VimuxRunCommand("ls -l")
+"  call VimuxRunCommand("ls -l")
   call VimuxRunCommand("/usr/bin/lldb ./cmake-build-debug/" .path)
   lcd `=cur_dir`
   
@@ -76,11 +75,10 @@ endfunction
 
 function! s:CMAKE_run()
   let git_dir = substitute(system("git rev-parse --show-toplevel"), '\n\+$', '', 'g')
-" let git_dir = substitute(git_dir, '\n$', '', '')
-  call VimuxRunCommand("echo git_dir " . git_dir)
+"  call VimuxRunCommand("echo git_dir " . git_dir)
   let project = substitute(s:CMAKE_projectname() , '\n\+$', '', 'g')
   let name = project
-  call VimuxRunCommand("echo name " . name)
+"  call VimuxRunCommand("echo name " . name)
   let cur_dir = getcwd()
   call s:CMAKE_build("debug")
   let path = './cmake-build-debug/' . name
@@ -90,18 +88,17 @@ function! s:CMAKE_run()
   cd cmake-build-debug
   lcd `=git_dir`
 
-  echom "mac " . mac 
   if isdirectory(mac) != 0
     let path = name . ".app/Contents/MacOS/" . name
-    echom mac . " IS DIRECTORY " . path
+"    echom mac . " IS DIRECTORY " . path
   else
     let cur_dir = getcwd()
-    echom cur_dir . ' ' . mac . " IS NOT DIRECTORY"
+"    echom cur_dir . ' ' . mac . " IS NOT DIRECTORY"
   endif
 "  echom path
-  call VimuxRunCommand("ls -l")
+"  call VimuxRunCommand("ls -l")
   let command = "./cmake-build-debug/" .path
-  echom command
+"  echom command
   call VimuxRunCommand(command)
 "  execute "!" . path . "&"
 "  call system(path)
