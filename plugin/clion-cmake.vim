@@ -1,6 +1,6 @@
 
 function! s:CMAKE_projectname()
-  return system("grep -ri 'project(' CMakeLists.txt| head -1 | sed -e 's/[Pp][Rr][Oo][Jj][Ee][Cc][Tt].//' | sed -e 's/)//' | sed -e 's/CMakeLists.txt://' | tr -d '\\n'")
+  return substitute(system("grep -ri 'project(' CMakeLists.txt| head -1 | sed -e 's/[Pp][Rr][Oo][Jj][Ee][Cc][Tt].//' | sed -e 's/)//' | sed -e 's/CMakeLists.txt://' | tr -d '\\n'"), '\n+$', '', 'g')
 endfunction
 
 function! s:CMAKE_clean()
@@ -21,7 +21,7 @@ endfunction
 
 function! s:CMAKE_debug()
   let git_dir = substitute(system("git rev-parse --show-toplevel"), '\n\+$', '', 'g')
-  let project = substitute(s:CMAKE_projectname() , '\n\+$', '', 'g')
+  let project = s:CMAKE_projectname()
   let name = project
   let cur_dir = getcwd()
   call s:CMAKE_build("debug")
@@ -39,13 +39,11 @@ function! s:CMAKE_debug()
   endif
   call VimuxRunCommand("/usr/bin/lldb ./cmake-build-debug/" .path)
   lcd `=cur_dir`
-  
-  
 endfunction
 
 function! s:CMAKE_run()
   let git_dir = substitute(system("git rev-parse --show-toplevel"), '\n\+$', '', 'g')
-  let project = substitute(s:CMAKE_projectname() , '\n\+$', '', 'g')
+  let project = s:CMAKE_projectname()
   let name = project
   let cur_dir = getcwd()
   call s:CMAKE_build("debug")
