@@ -45,7 +45,6 @@ endfunction
 
 function! s:CMAKE_run()
   let git_dir = substitute(system("git rev-parse --show-toplevel"), '\n\+$', '', 'g')
-"  call VimuxRunCommand("echo git_dir " . git_dir)
   let project = substitute(s:CMAKE_projectname() , '\n\+$', '', 'g')
   let name = project
   let cur_dir = getcwd()
@@ -59,7 +58,6 @@ function! s:CMAKE_run()
 
   if isdirectory(mac) != 0
     let path = name . ".app/Contents/MacOS/" . name
-"    echom mac . " IS DIRECTORY " . path
   else
     let path = project
   endif
