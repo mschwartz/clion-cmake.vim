@@ -1,10 +1,9 @@
 
 function! s:CMAKE_projectname()
-  return system("grep -ri 'project(' CMakeLists.txt| head -1 | sed -e 's/[Pp][Rr][Oo][Jj][Ee][Cc][Tt].//' | sed -e 's/)//' | sed -e 's/CMakeLists.txt://' | tr -d '\\n'")
+  return substitute(system("grep -ri 'project(' CMakeLists.txt| head -1 | sed -e 's/[Pp][Rr][Oo][Jj][Ee][Cc][Tt].//' | sed -e 's/)//' | sed -e 's/CMakeLists.txt://' | tr -d '\\n'"), '\n+$', '', 'g')
 endfunction
 
 function! s:CMAKE_clean()
-  let cur_dir = getcwd()
   let git_dir = system("git rev-parse --show-toplevel")
   lcd `=git_dir`
   call VimuxRunCommand("cd `git rev-parse --show-toplevel`");
@@ -25,7 +24,6 @@ function! s:CMAKE_clean()
 endfunction
 
 function! s:CMAKE_build(configuration)
-  let cur_dir = getcwd()
   let git_dir = system("git rev-parse --show-toplevel")
   lcd `=git_dir`
 "  if a:configuration == "debug"
@@ -53,7 +51,7 @@ endfunction
 
 function! s:CMAKE_debug()
   let git_dir = substitute(system("git rev-parse --show-toplevel"), '\n\+$', '', 'g')
-  let project = substitute(s:CMAKE_projectname() , '\n\+$', '', 'g')
+  let project = s:CMAKE_projectname()
   let name = project
   let cur_dir = getcwd()
   call s:CMAKE_build("debug")
@@ -66,25 +64,19 @@ function! s:CMAKE_debug()
 
   if isdirectory(mac) != 0
     let path = name . ".app/Contents/MacOS/" . name
-"    echom mac . " IS DIRECTORY " . path
   else
     let cur_dir = getcwd()
-"    echom cur_dir . ' ' . mac . " IS NOT DIRECTORY"
   endif
 "  echom path
 "  call VimuxRunCommand("ls -l")
   call VimuxRunCommand("test -e .built && /usr/bin/lldb ./cmake-build-debug/" .path)
   lcd `=cur_dir`
-  
-  
 endfunction
 
 function! s:CMAKE_run()
   let git_dir = substitute(system("git rev-parse --show-toplevel"), '\n\+$', '', 'g')
-"  call VimuxRunCommand("echo git_dir " . git_dir)
-  let project = substitute(s:CMAKE_projectname() , '\n\+$', '', 'g')
+  let project = s:CMAKE_projectname()
   let name = project
-"  call VimuxRunCommand("echo name " . name)
   let cur_dir = getcwd()
   call s:CMAKE_build("debug")
   let path = './cmake-build-debug/' . name
@@ -96,10 +88,8 @@ function! s:CMAKE_run()
 
   if isdirectory(mac) != 0
     let path = name . ".app/Contents/MacOS/" . name
-"    echom mac . " IS DIRECTORY " . path
   else
-    let cur_dir = getcwd()
-"    echom cur_dir . ' ' . mac . " IS NOT DIRECTORY"
+    let path = project
   endif
 "  echom path
 "  call VimuxRunCommand("ls -l")
@@ -107,14 +97,11 @@ function! s:CMAKE_run()
   let command = "test -e .built && cd " . git_dir . "/cmake-build-debug/ && " . path . " && cd " . cur_dir
 "  echom command
   call VimuxRunCommand(command)
-"  execute "!" . path . "&"
-"  call system(path)
-  lcd `=cur_dir`
+  lcd `=git_dir`
 endfunction
 
 command! CMakeClean call s:CMAKE_clean()
 command! CMakeRelease call s:CMAKE_build("release")
-"command! CMakeDebug call s:CMAKE_build("debug")
 command! CMakeDebug call s:CMAKE_debug()
 command! CMakeRun call s:CMAKE_run()
 
