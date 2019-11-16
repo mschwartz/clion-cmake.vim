@@ -7,8 +7,11 @@ function! s:CMAKE_clean()
   let cur_dir = getcwd()
   let git_dir = system("git rev-parse --show-toplevel")
   lcd `=git_dir`
-  call VimuxRunCommand("rm -rf cmake-build-debug cmake-build-release && mkdir -p cmake-build-debug cmake-build-release")
+  call VimuxRunCommand("cd `git rev-parse --show-toplevel`");
+  call VimuxRunCommand("rm -rf cmake-build-debug cmake-build-release && mkdir -p cmake-build-debug && mkdir -p cmake-build-release")
+  call VimuxRunCommand("cd `git rev-parse --show-toplevel`");
   call VimuxRunCommand("cd cmake-build-debug && cmake -DCMAKE_BUILD_TYPE=Debug ..")
+  call VimuxRunCommand("cd `git rev-parse --show-toplevel`");
   call VimuxRunCommand("cd cmake-build-release && cmake -DCMAKE_BUILD_TYPE=Release ..")
 "  !rm -rf cmake-build-debug
 "  !mkdir -p cmake-build-debug cmake-build-release
@@ -26,7 +29,10 @@ function! s:CMAKE_build(configuration)
   let git_dir = system("git rev-parse --show-toplevel")
   lcd `=git_dir`
 "  if a:configuration == "debug"
-    call VimuxRunCommand("cmake --build cmake-build-debug  --target Modite -- -j 20")
+    call VimuxRunCommand("cd " . git_dir)
+    call VimuxRunCommand("rm -f .built")
+    call VimuxRunCommand("cmake --build cmake-build-debug  --target Modite -- -j 20 && touch .built")
+    call VimuxRunCommand("cd " . cur_dir)
 "    cd cmake-build-debug
 "    if filereadable("CmakeCache.txt")
 "      !rm -rf Resources.h Resources.bin CMakeCache.txt CMakeFiles Makefile cmake_install.cmake
@@ -67,7 +73,7 @@ function! s:CMAKE_debug()
   endif
 "  echom path
 "  call VimuxRunCommand("ls -l")
-  call VimuxRunCommand("/usr/bin/lldb ./cmake-build-debug/" .path)
+  call VimuxRunCommand("test -e .built && /usr/bin/lldb ./cmake-build-debug/" .path)
   lcd `=cur_dir`
   
   
@@ -97,7 +103,8 @@ function! s:CMAKE_run()
   endif
 "  echom path
 "  call VimuxRunCommand("ls -l")
-  let command = "./cmake-build-debug/" .path
+  call VimuxRunCommand("cd " . git_dir)
+  let command = "test -e .built && cd " . git_dir . "/cmake-build-debug/ && " . path . " && cd " . cur_dir
 "  echom command
   call VimuxRunCommand(command)
 "  execute "!" . path . "&"
