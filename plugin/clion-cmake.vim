@@ -37,7 +37,8 @@ function! s:CMAKE_debug()
   else
     let cur_dir = getcwd()
   endif
-  call VimuxRunCommand("/usr/bin/lldb ./cmake-build-debug/" .path)
+"  call VimuxRunCommand("/usr/bin/lldb ./cmake-build-debug/" .path)
+  call VimuxRunCommand("/usr/bin/cgdb ./cmake-build-debug/" .path)
   lcd `=cur_dir`
 endfunction
 
