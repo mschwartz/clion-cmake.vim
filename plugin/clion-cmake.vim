@@ -24,6 +24,7 @@ function! s:CMAKE_clean()
 endfunction
 
 function! s:CMAKE_build(configuration)
+  let cur_dir = getcwd()
   let git_dir = system("git rev-parse --show-toplevel")
   lcd `=git_dir`
 "  if a:configuration == "debug"
@@ -90,11 +91,8 @@ function! s:CMAKE_run()
   else
     let path = project
   endif
-"  echom path
-"  call VimuxRunCommand("ls -l")
   call VimuxRunCommand("cd " . git_dir)
   let command = "test -e .built && cd " . git_dir . "/cmake-build-debug/ && " . path . " && cd " . cur_dir
-"  echom command
   call VimuxRunCommand(command)
   lcd `=git_dir`
 endfunction
