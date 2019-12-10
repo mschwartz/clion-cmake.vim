@@ -4,13 +4,14 @@ function! s:CMAKE_projectname()
 endfunction
 
 function! s:CMAKE_clean()
+  let cur_dir = getcwd()
   let git_dir = system("git rev-parse --show-toplevel")
   lcd `=git_dir`
-  call VimuxRunCommand("cd `git rev-parse --show-toplevel`");
+  call VimuxRunCommand("cd `git rev-parse --show-toplevel`")
   call VimuxRunCommand("rm -rf cmake-build-debug cmake-build-release && mkdir -p cmake-build-debug && mkdir -p cmake-build-release")
-  call VimuxRunCommand("cd `git rev-parse --show-toplevel`");
+  call VimuxRunCommand("cd `git rev-parse --show-toplevel`")
   call VimuxRunCommand("cd cmake-build-debug && cmake -DCMAKE_BUILD_TYPE=Debug ..")
-  call VimuxRunCommand("cd `git rev-parse --show-toplevel`");
+  call VimuxRunCommand("cd `git rev-parse --show-toplevel`")
   call VimuxRunCommand("cd cmake-build-release && cmake -DCMAKE_BUILD_TYPE=Release ..")
 "  !rm -rf cmake-build-debug
 "  !mkdir -p cmake-build-debug cmake-build-release
@@ -69,7 +70,7 @@ function! s:CMAKE_debug()
     let cur_dir = getcwd()
   endif
 "  call VimuxRunCommand("/usr/bin/lldb ./cmake-build-debug/" .path)
-  call VimuxRunCommand("/usr/bin/cgdb ./cmake-build-debug/" .path)
+  call VimuxRunCommand("/usr/bin/cgdb " . path)
   lcd `=cur_dir`
 endfunction
 
@@ -92,9 +93,11 @@ function! s:CMAKE_run()
     let path = project
   endif
   call VimuxRunCommand("cd " . git_dir)
-  let command = "test -e .built && cd " . git_dir . "/cmake-build-debug/ && " . path . " && cd " . cur_dir
+  call VimuxRunCommand("pkill " . path)
+  let command = "test -e .built && ./cmake-build-debug/" .path "
   call VimuxRunCommand(command)
   lcd `=git_dir`
+  call VimuxRunCommand("cd " . cur_dir)
 endfunction
 
 command! CMakeClean call s:CMAKE_clean()
